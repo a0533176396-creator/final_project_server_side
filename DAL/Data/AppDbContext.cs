@@ -53,6 +53,11 @@ namespace DAL.Data
         /// </summary>
         public DbSet<Message> Messages { get; set; }
 
+        /// <summary>
+        /// Gets or sets the DbSet for task files entities.
+        /// </summary>
+        public DbSet<taskFile> TaskFiles { get; set; }
+
         #endregion
 
         #region Model Configuration
@@ -170,9 +175,26 @@ namespace DAL.Data
                 .HasMaxLength(200)
                 .IsRequired();
 
+            // TaskFile configuration
+            modelBuilder.Entity<taskFile>()
+                .HasKey(tf => tf.FileId);
+
+            modelBuilder.Entity<taskFile>()
+                .Property(tf => tf.FileName)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            modelBuilder.Entity<taskFile>()
+                .Property(tf => tf.FileUrl)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            // Tasks -> TaskFiles relationship (1:Many)
             modelBuilder.Entity<tasks>()
-                .Property(t => t.File_path)
-                .HasMaxLength(500);
+                .HasMany(t => t.TaskFiles)
+                .WithOne(tf => tf.Task)
+                .HasForeignKey(tf => tf.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Favorite Users Categories configuration
             modelBuilder.Entity<favoriet_users_categories>()

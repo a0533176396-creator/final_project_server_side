@@ -9,6 +9,7 @@ namespace DTO.Models
     public class usersDTO
     {
         public int Id { get; set; }
+        public string sub { get; set; }
         public string First_name { get; set; }
         public string Last_name { get; set; }
         public string Email { get; set; }

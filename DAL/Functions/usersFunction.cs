@@ -17,9 +17,9 @@ namespace DAL.Functions
         }
 
         //--------------------------קבלת משתמש על פי קוד המשתמש----------------------------
-        public static users? GetUserById(int id)
+        public static users? GetUserById(string sub)
         {
-            users User = DB.Users.FirstOrDefault(p => p.Id == id)!;
+            users User = DB.Users.FirstOrDefault(p => p.sub == sub)!;
             if (User != null)
                 return User;
             return null;

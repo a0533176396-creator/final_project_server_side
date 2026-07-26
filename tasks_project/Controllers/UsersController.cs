@@ -23,7 +23,7 @@ namespace tasks_project.Controllers
         // שליפה לפי קוד
         //-------------------
         [HttpGet("GetUserById/{userId}")]
-        public IActionResult GetUserById(int userId)
+        public IActionResult GetUserById(string userId)
         {
             return Ok(UsersBLL.GetUserById(userId));
         }

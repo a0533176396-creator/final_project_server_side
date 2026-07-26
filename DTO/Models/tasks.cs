@@ -15,7 +15,7 @@ namespace DTO.Models
         public int user_id { get; set; }
         public string user_first_name { get; set; }   
         public string user_last_name { get; set; }
-        public string File_path { get; set; }
+        //public string File_path { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string color { get; set; }

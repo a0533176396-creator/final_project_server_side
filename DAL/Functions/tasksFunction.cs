@@ -42,7 +42,6 @@ namespace DAL.Functions
                 TaskToUpdate.Title = newTask.Title;
                 TaskToUpdate.Task_Date = newTask.Task_Date;
                 TaskToUpdate.user_id = newTask.user_id;
-                TaskToUpdate.File_path = newTask.File_path;
                 TaskToUpdate.CategoryId = newTask.CategoryId;
                 DB.SaveChanges();
             }

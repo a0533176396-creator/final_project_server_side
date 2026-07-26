@@ -16,8 +16,6 @@ namespace DAL.Models
         [ForeignKey(nameof(User))]
         public int user_id { get; set; }
     
-        public string File_path { get; set; }
-     
         [ForeignKey(nameof(Category))]
         public int CategoryId { get; set; }
 
@@ -26,5 +24,8 @@ namespace DAL.Models
 
         // קשר לטבלת Categories
         public categories Category { get; set; }
+
+        // קשר לטבלת TaskFiles
+        public ICollection<taskFile> TaskFiles { get; set; } = new List<taskFile>();
     }
 }

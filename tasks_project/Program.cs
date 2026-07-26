@@ -7,7 +7,16 @@ using BLL.Functions;
 
 var builder = WebApplication.CreateBuilder(args);
 
- //Add services to the container.
+//using Microsoft.OpenApi.Models;
+//using DTO.Mapper;
+//using BLL.Functions;
+//using Microsoft.AspNetCore;
+//using DTO.Mapper;
+//using BLL.Functions;
+
+//var builder = WebApplicationBuilder.CreateBuilder(args);
+
+// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -16,6 +25,17 @@ builder.Services.AddControllers();
 
 // ✅ Register BLL services
 //builder.Services.AddScoped<UsersBLL>();
+
+// ✅ Add CORS Policy - לפני builder.Build()
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy => policy
+            .WithOrigins("http://localhost:5173") // הפורט של ה-React
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
 
 // ✅ Swagger Configuration (מפורט)
 builder.Services.AddEndpointsApiExplorer();
@@ -57,9 +77,10 @@ builder.Services.AddSwaggerGen(options =>
     //});
 });
 
-builder.Services.AddCors();
-
 var app = builder.Build();
+
+// ✅ Use CORS Middleware - אחרי builder.Build() ולפני app.MapControllers()
+app.UseCors("AllowReactApp");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -73,9 +94,6 @@ if (app.Environment.IsDevelopment())
         options.DisplayRequestDuration();
         options.EnableTryItOutByDefault();
     });
-
-    // הגדרת CORS
-    app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000", "http://localhost:3001"));
 }
 
 app.UseStaticFiles();
@@ -84,66 +102,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//using DAL.Data;
-//using Microsoft.EntityFrameworkCore;
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//// Add services to the container.
-
-//// Register DbContext with PostgreSQL
-////var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-////    ?? "Host=localhost;Port=5432;Database=tasks_project_db;Username=postgres;Password=postgres;";
-
-////builder.Services.AddDbContext<AppDbContext>(options =>
-////    options.UseNpgsql(connectionString));
-
-//builder.Services.AddControllers();
-//// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();
-
-//var app = builder.Build();
-
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.MapOpenApi();
-//}
-
-//app.UseHttpsRedirection();
-
-//app.UseAuthorization();
-
-//app.MapControllers();
-
-//app.Run();

@@ -25,9 +25,9 @@ namespace BLL.Functions
         }
 
         //-----------------------------------GetUserById-----------------------------------
-        public static usersDTO? GetUserById(int id)
+        public static usersDTO? GetUserById(string sub)
         {
-            users? user = usersFunction.GetUserById(id);
+            users? user = usersFunction.GetUserById(sub);
             if (user == null)
                 return null;
             return AppMapper.UserToDto(user);
