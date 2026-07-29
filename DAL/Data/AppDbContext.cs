@@ -26,7 +26,7 @@ namespace DAL.Data
         /// <summary>
         /// Gets or sets the DbSet for users entities.
         /// </summary>
-        public DbSet<users> Users { get; set; }
+        public DbSet<Users> Users { get; set; }
 
         /// <summary>
         /// Gets or sets the DbSet for categories entities.
@@ -84,49 +84,49 @@ namespace DAL.Data
             base.OnModelCreating(modelBuilder);
 
             // Users configuration
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .HasKey(u => u.Id);
 
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .Property(u => u.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .Property(u => u.First_name)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .Property(u => u.Last_name)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .Property(u => u.Email)
                 .HasMaxLength(255)
                 .IsRequired();
 
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .Property(u => u.Password)
                 .HasMaxLength(255)
                 .IsRequired();
 
             // Users -> Tasks relationship (1:Many)
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .HasMany(u => u.Tasks)
-                .WithOne(t => t.User)
+                .WithOne(t => t.Users)
                 .HasForeignKey(t => t.user_id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Users -> ChatSessions relationship (1:Many)
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .HasMany(u => u.ChatSessions)
                 .WithOne(cs => cs.User)
                 .HasForeignKey(cs => cs.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Users -> FavoriteUserCategories relationship (1:Many)
-            modelBuilder.Entity<users>()
+            modelBuilder.Entity<Users>()
                 .HasMany(u => u.FavoriteUserCategories)
                 .WithOne(fuc => fuc.User)
                 .HasForeignKey(fuc => fuc.user_id)
@@ -177,15 +177,15 @@ namespace DAL.Data
 
             // TaskFile configuration
             modelBuilder.Entity<taskFile>()
-                .HasKey(tf => tf.FileId);
+                .HasKey(tf => tf.fileid);
 
             modelBuilder.Entity<taskFile>()
-                .Property(tf => tf.FileName)
+                .Property(tf => tf.filename)
                 .HasMaxLength(255)
                 .IsRequired();
 
             modelBuilder.Entity<taskFile>()
-                .Property(tf => tf.FileUrl)
+                .Property(tf => tf.fileurl)
                 .HasMaxLength(500)
                 .IsRequired();
 
@@ -193,7 +193,7 @@ namespace DAL.Data
             modelBuilder.Entity<tasks>()
                 .HasMany(t => t.TaskFiles)
                 .WithOne(tf => tf.Task)
-                .HasForeignKey(tf => tf.TaskId)
+                .HasForeignKey(tf => tf.taskid)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Favorite Users Categories configuration

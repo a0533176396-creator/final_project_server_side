@@ -54,5 +54,31 @@ namespace tasks_project.Controllers
         {
           return Ok(UsersBLL.DeleteUser(userId));
         }
+
+        //--------------------------------------------
+        // Validate User Full Name and Password
+        //--------------------------------------------
+        [HttpPost("ValidateUserFullNameAndPassword")]
+        public IActionResult ValidateUserFullNameAndPassword([FromBody] ValidateUserRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.FirstName) || 
+       string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.Password))
+         {
+return BadRequest();
+            }
+
+  bool isValid = UsersBLL.ValidateUserFullNameAndPassword(request.FirstName, request.LastName, request.Password);
+            return Ok(isValid);
+        }
+    }
+
+    //--------------------------------------------
+    // Request model for validation
+    //--------------------------------------------
+    public class ValidateUserRequest
+    {
+        public string FirstName { get; set; }
+      public string LastName { get; set; }
+        public string Password { get; set; }
     }
 }

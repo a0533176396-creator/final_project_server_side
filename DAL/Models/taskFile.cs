@@ -11,39 +11,42 @@ namespace DAL.Models
     /// <summary>
     /// Represents a file attached to a task.
     /// </summary>
+
+    // התיקון: אומר ל-EF Core מהו השם המדויק של הטבלה במסד הנתונים
+    [Table("taskfiles")]
     public class taskFile
     {
         /// <summary>
         /// Primary key - unique identifier for the file record.
         /// </summary>
         [Key]
-        public int FileId { get; set; }
+        public int fileid { get; set; }
 
         /// <summary>
         /// Foreign key - references the Tasks table.
         /// </summary>
         [ForeignKey(nameof(Task))]
-        public int TaskId { get; set; }
+        public int taskid { get; set; }
 
         /// <summary>
         /// Original file name (e.g., "סיכום.pdf").
         /// </summary>
         [Required]
         [StringLength(255)]
-        public string FileName { get; set; }
+        public string filename { get; set; }
 
         /// <summary>
         /// Direct link to the file in Google Cloud Storage.
         /// </summary>
         [Required]
         [StringLength(500)]
-        [Url]
-        public string FileUrl { get; set; }
+        [Url] // מוודא שהמחרוזת היא בפורמט של קישור תקין
+        public string fileurl { get; set; }
 
         /// <summary>
         /// Upload date - optional timestamp of when the file was uploaded.
         /// </summary>
-        public DateTime? UploadDate { get; set; }
+        public DateTime? uploaddate { get; set; }
 
         /// <summary>
         /// Navigation property - relationship to the Task.

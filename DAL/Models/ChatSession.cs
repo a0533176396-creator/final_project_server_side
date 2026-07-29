@@ -16,7 +16,7 @@ namespace DAL.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // קשר לטבלת Users
-        public users User { get; set; }
+        public Users User { get; set; }
 
         // קשר לטבלת Messages
         public ICollection<Message> Messages { get; set; }

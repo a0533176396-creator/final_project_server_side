@@ -169,7 +169,7 @@ namespace DAL.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("DAL.Models.users", b =>
+            modelBuilder.Entity("DAL.Models.Users", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Models.ChatSession", b =>
                 {
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "User")
                         .WithMany("ChatSessions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -245,7 +245,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "User")
                         .WithMany("FavoriteUserCategories")
                         .HasForeignKey("user_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -264,7 +264,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "User")
                         .WithMany("Tasks")
                         .HasForeignKey("user_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -289,7 +289,7 @@ namespace DAL.Migrations
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("DAL.Models.users", b =>
+            modelBuilder.Entity("DAL.Models.Users", b =>
                 {
                     b.Navigation("ChatSessions");
 

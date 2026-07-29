@@ -18,7 +18,7 @@ namespace DAL.Models
         public int category_id { get; set; }
 
         // קשר לטבלת Users
-        public users User { get; set; }
+        public Users User { get; set; }
 
         // קשר לטבלת Categories
         public categories Category { get; set; }

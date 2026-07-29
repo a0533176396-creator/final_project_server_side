@@ -13,14 +13,14 @@ namespace DAL.Models
         public string Title { get; set; }
         public DateTime Task_Date { get; set; }
       
-        [ForeignKey(nameof(User))]
+        [ForeignKey(nameof(Users))]
         public int user_id { get; set; }
     
         [ForeignKey(nameof(Category))]
         public int CategoryId { get; set; }
 
         // קשר לטבלת Users
-        public users User { get; set; }
+        public Users Users { get; set; }
 
         // קשר לטבלת Categories
         public categories Category { get; set; }

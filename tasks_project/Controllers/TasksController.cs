@@ -27,18 +27,21 @@ namespace tasks_project.Controllers
       return Ok(tasksBLL.GetTaskById(taskId));
         }
 
-   //-------------
+        //-------------
         //הוספה
         //-------------
-        [HttpPut("AddNewTask")]
+        [HttpPut]
         public IActionResult AddNewTask([FromBody] tasksDTO taskDTO)
- {
-          return Ok(tasksBLL.AddNewTask(taskDTO));
- }
+        {
+
+            // מחזיר סטטוס 201 (Created) יחד עם המשימה החדשה
+            return Ok(tasksBLL.AddNewTask(taskDTO));
+        }
+
 
         //-------------
-   //עדכון
-//-------------
+        //עדכון
+        //-------------
         [HttpPost("UpdateTask/{taskId}")]
         public IActionResult UpdateTask(int taskId, [FromBody] tasksDTO taskDTO)
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,26 +15,28 @@ namespace DTO.Models
         /// <summary>
         /// Primary key - unique identifier for the file record.
         /// </summary>
-        public int FileId { get; set; }
+        public int fileid { get; set; }
 
         /// <summary>
       /// Foreign key - references the Task.
      /// </summary>
- public int TaskId { get; set; }
+ public int taskid { get; set; }
 
   /// <summary>
    /// Original file name (e.g., "סיכום.pdf").
         /// </summary>
-        public string FileName { get; set; }
+        public string filename { get; set; }
 
         /// <summary>
         /// Direct link to the file in Google Cloud Storage.
-         /// </summary>
-      public string FileUrl { get; set; }
+        /// </summary>
+        //[Column("fileurl")] // או "fileurl"
+
+        public string fileurl { get; set; }
 
         /// <summary>
         /// Upload date - optional timestamp of when the file was uploaded.
         /// </summary>
-        public DateTime? UploadDate { get; set; }
+        public DateTime? uploaddate { get; set; }
     }
 }

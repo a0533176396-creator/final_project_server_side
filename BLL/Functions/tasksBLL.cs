@@ -29,12 +29,18 @@ namespace BLL.Functions
         }
 
         //-----------------------------------AddNewTask-----------------------------------
-        public static List<tasksDTO> AddNewTask(tasksDTO newTask)
+        public static tasksDTO AddNewTask(tasksDTO newTaskDto)
         {
-            tasks newTaskTBL = AppMapper.DtoToTask(newTask);
-            List<tasks> allData = tasksFunction.AddNewTask(newTaskTBL);
-            return allData.Select(AppMapper.TaskToDto).ToList();
+            // המרה מ-DTO לישות
+            tasks newTask = AppMapper.DtoToTask(newTaskDto);
+
+            // קריאה ל-DAL
+            tasks savedTask = tasksFunction.AddNewTask(newTask);
+
+            // החזרת ה-DTO של המשימה החדשה
+            return AppMapper.TaskToDto(savedTask);
         }
+
 
         //-----------------------------------UpdateTask-----------------------------------
         public static List<tasksDTO> UpdateTask(int idTask, tasksDTO newTask)

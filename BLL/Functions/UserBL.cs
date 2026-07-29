@@ -20,14 +20,14 @@ namespace BLL.Functions
         //-----------------------------------GetAllUsers-----------------------------------
         public static List<usersDTO> GetAllUsers()
         {
-            List<users> allData = usersFunction.GetAllUsers();
+            List<Users> allData = usersFunction.GetAllUsers();
             return allData.Select(AppMapper.UserToDto).ToList();
         }
 
         //-----------------------------------GetUserById-----------------------------------
         public static usersDTO? GetUserById(string sub)
         {
-            users? user = usersFunction.GetUserById(sub);
+            Users? user = usersFunction.GetUserById(sub);
             if (user == null)
                 return null;
             return AppMapper.UserToDto(user);
@@ -36,8 +36,8 @@ namespace BLL.Functions
         //-----------------------------------AddNewUser-----------------------------------
         public static List<usersDTO> AddNewUser(usersDTO newUser)
         {
-            users newUserTBL = AppMapper.DtoToUser(newUser);
-            List<users> allData = usersFunction.AddNewUser(newUserTBL);
+            Users newUserTBL = AppMapper.DtoToUser(newUser);
+            List<Users> allData = usersFunction.AddNewUser(newUserTBL);
             return allData.Select(AppMapper.UserToDto).ToList();
 
         }
@@ -45,17 +45,22 @@ namespace BLL.Functions
         //-----------------------------------UpdateUser-----------------------------------
         public static List<usersDTO> UpdateUser(int idUser, usersDTO newUser)
         {
-            users newUserTBL = AppMapper.DtoToUser(newUser);
-            List<users> allData = usersFunction.UpdateUser(idUser, newUserTBL);
+            Users newUserTBL = AppMapper.DtoToUser(newUser);
+            List<Users> allData = usersFunction.UpdateUser(idUser, newUserTBL);
             return allData.Select(AppMapper.UserToDto).ToList();
         }
 
         //-----------------------------------DeleteUser-----------------------------------
         public static List<usersDTO> DeleteUser(int idUser)
         {
-            List<users> allData = usersFunction.DeleteUser(idUser);
+            List<Users> allData = usersFunction.DeleteUser(idUser);
             return allData.Select(AppMapper.UserToDto).ToList();
 
+        }
+        //-----------------------------------ValidateUserFullNameAndPassword-----------------------------------
+        public static bool ValidateUserFullNameAndPassword(string firstName, string lastName, string password)
+        {
+            return usersFunction.ValidateUserFullNameAndPassword(firstName, lastName, password);
         }
     }
 }
