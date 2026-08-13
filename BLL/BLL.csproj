@@ -16,6 +16,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
+		<PackageReference Include="Google.Cloud.AIPlatform.V1" Version="3.75.0" />
+		<PackageReference Include="Google.Cloud.Storage.V1" Version="4.15.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 	</ItemGroup>
 

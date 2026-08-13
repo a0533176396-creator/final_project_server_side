@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260719200615_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260805213654_UpdateMessagesTable")]
+    partial class UpdateMessagesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.14")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -62,17 +62,16 @@ namespace DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Content")
+                    b.Property<string>("ContentURL")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
+                    b.Property<int>("Role")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("integer");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("integer");
@@ -82,6 +81,46 @@ namespace DAL.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("DAL.Models.Users", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("First_name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Last_name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("Wont_help")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("sub")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("DAL.Models.categories", b =>
@@ -136,6 +175,37 @@ namespace DAL.Migrations
                     b.ToTable("FavoriteUserCategories");
                 });
 
+            modelBuilder.Entity("DAL.Models.taskFile", b =>
+                {
+                    b.Property<int>("fileid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("fileid"));
+
+                    b.Property<string>("filename")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("fileurl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("taskid")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("uploaddate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("fileid");
+
+                    b.HasIndex("taskid");
+
+                    b.ToTable("taskfiles");
+                });
+
             modelBuilder.Entity("DAL.Models.tasks", b =>
                 {
                     b.Property<int>("Id")
@@ -146,11 +216,6 @@ namespace DAL.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("File_path")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("Task_Date")
                         .HasColumnType("timestamp with time zone");
@@ -172,45 +237,9 @@ namespace DAL.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("DAL.Models.users", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("First_name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Last_name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("Wont_help")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
             modelBuilder.Entity("DAL.Models.ChatSession", b =>
                 {
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "User")
                         .WithMany("ChatSessions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -248,7 +277,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "User")
                         .WithMany("FavoriteUserCategories")
                         .HasForeignKey("user_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -259,6 +288,17 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DAL.Models.taskFile", b =>
+                {
+                    b.HasOne("DAL.Models.tasks", "Task")
+                        .WithMany("TaskFiles")
+                        .HasForeignKey("taskid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("DAL.Models.tasks", b =>
                 {
                     b.HasOne("DAL.Models.categories", "Category")
@@ -267,7 +307,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Models.users", "User")
+                    b.HasOne("DAL.Models.Users", "Users")
                         .WithMany("Tasks")
                         .HasForeignKey("user_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -275,12 +315,21 @@ namespace DAL.Migrations
 
                     b.Navigation("Category");
 
-                    b.Navigation("User");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("DAL.Models.ChatSession", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("DAL.Models.Users", b =>
+                {
+                    b.Navigation("ChatSessions");
+
+                    b.Navigation("FavoriteUserCategories");
+
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("DAL.Models.categories", b =>
@@ -292,13 +341,9 @@ namespace DAL.Migrations
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("DAL.Models.users", b =>
+            modelBuilder.Entity("DAL.Models.tasks", b =>
                 {
-                    b.Navigation("ChatSessions");
-
-                    b.Navigation("FavoriteUserCategories");
-
-                    b.Navigation("Tasks");
+                    b.Navigation("TaskFiles");
                 });
 #pragma warning restore 612, 618
         }

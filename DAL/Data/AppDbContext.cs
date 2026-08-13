@@ -58,6 +58,11 @@ namespace DAL.Data
         /// </summary>
         public DbSet<taskFile> TaskFiles { get; set; }
 
+        /// <summary>
+        /// Gets or sets the DbSet for user insights entities.
+        /// </summary>
+        public DbSet<UserInsight> UserInsights { get; set; }
+
         #endregion
 
         #region Model Configuration
@@ -130,6 +135,13 @@ namespace DAL.Data
                 .HasMany(u => u.FavoriteUserCategories)
                 .WithOne(fuc => fuc.User)
                 .HasForeignKey(fuc => fuc.user_id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Users -> UserInsights relationship (1:Many)
+            modelBuilder.Entity<Users>()
+                .HasMany(u => u.UserInsights)
+                .WithOne(ui => ui.User)
+                .HasForeignKey(ui => ui.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Categories configuration
@@ -236,7 +248,7 @@ namespace DAL.Data
                 .IsRequired();
 
             modelBuilder.Entity<Message>()
-                .Property(m => m.Content)
+                .Property(m => m.ContentURL)
                 .IsRequired();
 
             modelBuilder.Entity<Message>()
@@ -244,6 +256,42 @@ namespace DAL.Data
                 .WithMany(cs => cs.Messages)
                 .HasForeignKey(m => m.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // ====================================================================
+            // UserInsight configuration
+            // ====================================================================
+            modelBuilder.Entity<UserInsight>()
+                .HasKey(ui => ui.Id);
+
+            modelBuilder.Entity<UserInsight>()
+                .Property(ui => ui.InsightText)
+                .IsRequired();
+
+            modelBuilder.Entity<UserInsight>()
+                .Property(ui => ui.Category)
+                .HasMaxLength(50);
+
+            // Users -> UserInsights relationship (1:Many)
+            modelBuilder.Entity<Users>()
+                .HasMany(u => u.UserInsights)
+                .WithOne(ui => ui.User)
+                .HasForeignKey(ui => ui.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ====================================================================
+            // Users configuration - עדכון לעמודות החדשות
+            // ====================================================================
+            modelBuilder.Entity<Users>()
+                .Property(u => u.FamilyStatus)
+                .HasMaxLength(255);
+
+            modelBuilder.Entity<Users>()
+                .Property(u => u.WorkStyle)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Users>()
+                .Property(u => u.PreferredWorkHours)
+                .HasMaxLength(50);
         }
 
         #endregion

@@ -9,49 +9,63 @@ namespace tasks_project.Controllers
     [ApiController]
     public class MessagesController : ControllerBase
     {
-        //-------------
-        //שליפה
-        //-------------
-        [HttpGet("GetAllMessages")]
-        public IActionResult GetAllMessages()
+        // ==========================================================
+        // שליפת היסטוריית שיחה (מחזיר רשימה של DTO)
+        // ==========================================================
+        [HttpGet("session/{sessionId}")]
+        public IActionResult GetSessionMessages(int sessionId)
         {
-            return Ok(MessageBLL.GetAllMessages());
+            try
+            {
+                // קריאה ל-BLL שמטפל בשליפה מה-SQL, הורדה מגוגל והמרה ל-DTO
+                List<MessageDTO> messages = MessageBLL.GetSessionMessagesDTO(sessionId);
+
+                return Ok(messages); // מחזיר JSON ללקוח
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בשליפת היסטוריית ההודעות: {ex.Message}");
+            }
         }
 
-  //-------------------
-        // שליפה לפי קוד
-        //-------------------
-        [HttpGet("GetMessageById/{messageId}")]
-  public IActionResult GetMessageById(int messageId)
-     {
-     return Ok(MessageBLL.GetMessageById(messageId));
-        }
-
-   //-------------
-        //הוספה
-        //-------------
-        [HttpPut("AddNewMessage")]
-     public IActionResult AddNewMessage([FromBody] MessageDTO messageDTO)
+        // ==========================================================
+        // שליחת הודעה חדשה ל-AI וקבלת תשובה (מחזיר DTO בודד)
+        // ==========================================================
+        [HttpPost("send")]
+        public async Task<IActionResult> SendMessageToAI([FromBody] SendMessageRequest request)
         {
-  return Ok(MessageBLL.AddNewMessage(messageDTO));
-        }
+            try
+            {
+                // בדיקת תקינות בסיסית (Validation)
+                if (request == null || string.IsNullOrWhiteSpace(request.Text))
+                {
+                    return BadRequest("ההודעה אינה יכולה להיות ריקה.");
+                }
 
-     //-------------
-  //עדכון
- //-------------
-        [HttpPost("UpdateMessage/{messageId}")]
-        public IActionResult UpdateMessage(int messageId, [FromBody] MessageDTO messageDTO)
-        {
-   return Ok(MessageBLL.UpdateMessage(messageId, messageDTO));
-     }
+                // קריאה אסינכרונית ל-BLL שמנהל את כל התהליך (שמירה, פנייה ל-AI, והמרה)
+                // הערה: בעתיד, UserId יגיע מ-JWT Token של המשתמש המחובר
+                MessageDTO aiResponse = await MessageBLL.SendMessageAndGetReplyAsync(
+                    request.SessionId, 
+                    request.Text,
+                    request.UserId  // הוסף את UserId
+                );
 
-        //-------------
-        //מחיקה
-        //-------------
-    [HttpDelete("DeleteMessage/{messageId}")]
-        public IActionResult DeleteMessage(int messageId)
-   {
-   return Ok(MessageBLL.DeleteMessage(messageId));
+                return Ok(aiResponse); // מחזיר את תשובת ה-AI ללקוח
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בתקשורת עם העוזר הווירטואלי: {ex.Message}");
+            }
         }
+    }
+
+    // ==========================================================
+    // מחלקת עזר (Model) לקבלת הנתונים מהבקשה (Request)
+    // ==========================================================
+    public class SendMessageRequest
+    {
+        public int SessionId { get; set; }
+        public int UserId { get; set; }  // הוסף UserId
+        public string Text { get; set; }
     }
 }

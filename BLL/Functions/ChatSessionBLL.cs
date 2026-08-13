@@ -12,43 +12,28 @@ namespace BLL.Functions
     /// </summary>
     public static class ChatSessionBLL
     {
-        //-----------------------------------GetAllChatSessions-----------------------------------
-        public static List<ChatSessionDTO> GetAllChatSessions()
+        // קבלת כל השיחות של משתמש
+        public static List<ChatSession> GetUserSessions(int userId)
         {
-            List<ChatSession> allData = ChatSessionFunction.GetAllDepartments();
-            return allData.Select(AppMapper.ChatSessionToDto).ToList();
+            return ChatSessionFunction.GetChatSessionsByUserId(userId);
         }
 
-        //-----------------------------------GetChatSessionById-----------------------------------
-        public static ChatSessionDTO? GetChatSessionById(short id)
+        // פתיחת שיחה חדשה
+        public static ChatSession CreateNewSession(int userId, string title)
         {
-            ChatSession? chatSession = ChatSessionFunction.GetChatSessionById(id);
-            if (chatSession == null)
-                return null;
-            return AppMapper.ChatSessionToDto(chatSession);
+            ChatSession newSession = new ChatSession
+            {
+                UserId = userId,
+                Title = title
+            };
+
+            return ChatSessionFunction.AddNewChatSession(newSession);
         }
 
-        //-----------------------------------AddNewChatSession-----------------------------------
-        public static List<ChatSessionDTO> AddNewChatSession(ChatSessionDTO newChatSession)
+        // מחיקת שיחה
+        public static bool DeleteSession(int sessionId)
         {
-            ChatSession newChatSessionTBL = AppMapper.DtoToChatSession(newChatSession);
-            List<ChatSession> allData = ChatSessionFunction.AddNewChatSession(newChatSessionTBL);
-            return allData.Select(AppMapper.ChatSessionToDto).ToList();
-        }
-
-        //-----------------------------------UpdateChatSession-----------------------------------
-        public static List<ChatSessionDTO> UpdateChatSession(short idChatSession, ChatSessionDTO newChatSession)
-        {
-            ChatSession newChatSessionTBL = AppMapper.DtoToChatSession(newChatSession);
-            List<ChatSession> allData = ChatSessionFunction.UpdateChatSession(idChatSession, newChatSessionTBL);
-            return allData.Select(AppMapper.ChatSessionToDto).ToList();
-        }
-
-        //-----------------------------------DeleteChatSession-----------------------------------
-        public static List<ChatSessionDTO> DeleteChatSession(short idChatSession)
-        {
-            List<ChatSession> allData = ChatSessionFunction.DeleteChatSession(idChatSession);
-            return allData.Select(AppMapper.ChatSessionToDto).ToList();
+            return ChatSessionFunction.DeleteChatSession(sessionId);
         }
     }
 }
