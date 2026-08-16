@@ -244,6 +244,7 @@ namespace DAL.Data
 
             modelBuilder.Entity<Message>()
                 .Property(m => m.Role)
+                .HasConversion<string>()
                 .HasMaxLength(50)
                 .IsRequired();
 

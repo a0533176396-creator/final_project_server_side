@@ -17,6 +17,15 @@ namespace DAL.Functions
             }
         }
 
+        //--------------------------קבלת משתמש על פי קוד מספרי----------------------------
+        public static Users? GetUserById(int id)
+        {
+            using (AppDbContext DB = new AppDbContext())
+            {
+                return DB.Users.FirstOrDefault(p => p.Id == id);
+            }
+        }
+
         //--------------------------קבלת משתמש על פי קוד המשתמש----------------------------
         public static Users? GetUserById(string sub)
         {

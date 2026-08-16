@@ -43,11 +43,10 @@ namespace tasks_project.Controllers
                 }
 
                 // קריאה אסינכרונית ל-BLL שמנהל את כל התהליך (שמירה, פנייה ל-AI, והמרה)
-                // הערה: בעתיד, UserId יגיע מ-JWT Token של המשתמש המחובר
                 MessageDTO aiResponse = await MessageBLL.SendMessageAndGetReplyAsync(
                     request.SessionId, 
                     request.Text,
-                    request.UserId  // הוסף את UserId
+                    request.UserId
                 );
 
                 return Ok(aiResponse); // מחזיר את תשובת ה-AI ללקוח
@@ -57,15 +56,5 @@ namespace tasks_project.Controllers
                 return StatusCode(500, $"שגיאה בתקשורת עם העוזר הווירטואלי: {ex.Message}");
             }
         }
-    }
-
-    // ==========================================================
-    // מחלקת עזר (Model) לקבלת הנתונים מהבקשה (Request)
-    // ==========================================================
-    public class SendMessageRequest
-    {
-        public int SessionId { get; set; }
-        public int UserId { get; set; }  // הוסף UserId
-        public string Text { get; set; }
     }
 }

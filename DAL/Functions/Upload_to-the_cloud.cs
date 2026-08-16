@@ -12,7 +12,7 @@ namespace DAL.Functions // (או ה-Namespace שבו המחלקה נמצאת כ�
         private static readonly string _bucketName = "final-tasks-project-files-2026";
 
         // הדלי החדש להיסטוריית הצ'אט
-        private static readonly string _chatBucketName = "ai-chat-history-bucket-2026";
+        private static readonly string _chatBucketName = "final-project-tasks-chat-masages-2026";
 
         // פונקציית העזר להתחברות
         private static StorageClient GetStorageClient()
