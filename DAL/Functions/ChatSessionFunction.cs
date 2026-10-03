@@ -41,14 +41,14 @@ namespace DAL.Functions
         }
 
         //--------------------------------הוספת שיחה חדשה----------------------------------
-        public static ChatSession AddNewChatSession(ChatSession newSession)
+        public static int AddNewChatSession(ChatSession newSession)
         {
             using (AppDbContext DB = new AppDbContext())
             {
                 DB.ChatSessions.Add(newSession);
                 DB.SaveChanges();
                 // נחזיר את האובייקט שנוצר כדי שהשכבה העליונה תקבל את ה-Id החדש שנוצר ב-DB
-                return newSession;
+                return newSession.Id;
             }
         }
 

@@ -67,12 +67,6 @@ namespace DAL.Data
 
         #region Model Configuration
 
-        /// <summary>
-        /// Configures the model that was discovered by convention from the entity types
-        /// exposed in DbSet properties on your derived context.
-        /// </summary>
-        /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -80,7 +74,6 @@ namespace DAL.Data
                 optionsBuilder.UseNpgsql(
                     "Host=localhost;Port=5432;Database=tasks_db;Username=postgres;Password=AAATKINS;"
                 );
-
             }
         }
 
@@ -88,211 +81,184 @@ namespace DAL.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Users configuration
-            modelBuilder.Entity<Users>()
-                .HasKey(u => u.Id);
+            // ====================================================================
+            // Users Configuration
+            // ====================================================================
+            modelBuilder.Entity<Users>(entity =>
+            {
+                entity.HasKey(u => u.Id);
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.Id)
-                .ValueGeneratedOnAdd();
+                entity.Property(u => u.Id)
+                    .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.First_name)
-                .HasMaxLength(100)
-                .IsRequired();
+                entity.Property(u => u.First_name)
+                    .HasMaxLength(100)
+                    .IsRequired();
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.Last_name)
-                .HasMaxLength(100)
-                .IsRequired();
+                entity.Property(u => u.Last_name)
+                    .HasMaxLength(100)
+                    .IsRequired();
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.Email)
-                .HasMaxLength(255)
-                .IsRequired();
+                entity.Property(u => u.Email)
+                    .HasMaxLength(255)
+                    .IsRequired();
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.Password)
-                .HasMaxLength(255)
-                .IsRequired();
+                entity.Property(u => u.Password)
+                    .HasMaxLength(255)
+                    .IsRequired();
 
-            // Users -> Tasks relationship (1:Many)
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.Tasks)
-                .WithOne(t => t.Users)
-                .HasForeignKey(t => t.user_id)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(u => u.FamilyStatus)
+                    .HasMaxLength(255);
 
-            // Users -> ChatSessions relationship (1:Many)
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.ChatSessions)
-                .WithOne(cs => cs.User)
-                .HasForeignKey(cs => cs.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(u => u.WorkStyle)
+                    .HasMaxLength(100);
 
-            // Users -> FavoriteUserCategories relationship (1:Many)
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.FavoriteUserCategories)
-                .WithOne(fuc => fuc.User)
-                .HasForeignKey(fuc => fuc.user_id)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.Property(u => u.PreferredWorkHours)
+                    .HasMaxLength(50);
 
-            // Users -> UserInsights relationship (1:Many)
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.UserInsights)
-                .WithOne(ui => ui.User)
-                .HasForeignKey(ui => ui.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                // Relationships
+                entity.HasMany(u => u.Tasks)
+                    .WithOne(t => t.Users)
+                    .HasForeignKey(t => t.user_id)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Categories configuration
-            modelBuilder.Entity<categories>()
-                .HasKey(c => c.Id);
+                entity.HasMany(u => u.ChatSessions)
+                    .WithOne(cs => cs.User)
+                    .HasForeignKey(cs => cs.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<categories>()
-                .Property(c => c.Name)
-                .HasMaxLength(100)
-                .IsRequired();
+                entity.HasMany(u => u.FavoriteUserCategories)
+                    .WithOne(fuc => fuc.User)
+                    .HasForeignKey(fuc => fuc.user_id)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<categories>()
-                .Property(c => c.Color)
-                .HasMaxLength(50);
-
-            // Categories self-referencing relationship (Parent-Child)
-            modelBuilder.Entity<categories>()
-                .HasOne(c => c.ParentCategory)
-                .WithMany(c => c.ChildCategories)
-                .HasForeignKey(c => c.father_id)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Categories -> Tasks relationship (1:Many)
-            modelBuilder.Entity<categories>()
-                .HasMany(c => c.Tasks)
-                .WithOne(t => t.Category)
-                .HasForeignKey(t => t.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Categories -> FavoriteUserCategories relationship (1:Many)
-            modelBuilder.Entity<categories>()
-                .HasMany(c => c.FavoriteUserCategories)
-                .WithOne(fuc => fuc.Category)
-                .HasForeignKey(fuc => fuc.category_id)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Tasks configuration
-            modelBuilder.Entity<tasks>()
-                .HasKey(t => t.Id);
-
-            modelBuilder.Entity<tasks>()
-                .Property(t => t.Title)
-                .HasMaxLength(200)
-                .IsRequired();
-
-            // TaskFile configuration
-            modelBuilder.Entity<taskFile>()
-                .HasKey(tf => tf.fileid);
-
-            modelBuilder.Entity<taskFile>()
-                .Property(tf => tf.filename)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            modelBuilder.Entity<taskFile>()
-                .Property(tf => tf.fileurl)
-                .HasMaxLength(500)
-                .IsRequired();
-
-            // Tasks -> TaskFiles relationship (1:Many)
-            modelBuilder.Entity<tasks>()
-                .HasMany(t => t.TaskFiles)
-                .WithOne(tf => tf.Task)
-                .HasForeignKey(tf => tf.taskid)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Favorite Users Categories configuration
-            modelBuilder.Entity<favoriet_users_categories>()
-                .HasKey(fuc => fuc.Id);
-
-            // Composite unique constraint to prevent duplicate favorites
-            modelBuilder.Entity<favoriet_users_categories>()
-                .HasIndex(fuc => new { fuc.user_id, fuc.category_id })
-                .IsUnique();
-
-            // ChatSession configuration
-            modelBuilder.Entity<ChatSession>()
-                .HasKey(cs => cs.Id);
-
-            modelBuilder.Entity<ChatSession>()
-                .Property(cs => cs.Title)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            modelBuilder.Entity<ChatSession>()
-                .HasOne(cs => cs.User)
-                .WithMany(u => u.ChatSessions)
-                .HasForeignKey(cs => cs.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ChatSession>()
-                .HasMany(cs => cs.Messages)
-                .WithOne(m => m.ChatSession)
-                .HasForeignKey(m => m.SessionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Message configuration
-            modelBuilder.Entity<Message>()
-                .HasKey(m => m.Id);
-
-            modelBuilder.Entity<Message>()
-                .Property(m => m.Role)
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
-
-            modelBuilder.Entity<Message>()
-                .Property(m => m.ContentURL)
-                .IsRequired();
-
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.ChatSession)
-                .WithMany(cs => cs.Messages)
-                .HasForeignKey(m => m.SessionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(u => u.UserInsights)
+                    .WithOne(ui => ui.User)
+                    .HasForeignKey(ui => ui.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // ====================================================================
-            // UserInsight configuration
+            // Categories Configuration
             // ====================================================================
-            modelBuilder.Entity<UserInsight>()
-                .HasKey(ui => ui.Id);
+            modelBuilder.Entity<categories>(entity =>
+            {
+                entity.HasKey(c => c.Id);
 
-            modelBuilder.Entity<UserInsight>()
-                .Property(ui => ui.InsightText)
-                .IsRequired();
+                entity.Property(c => c.Name)
+                    .HasMaxLength(100)
+                    .IsRequired();
 
-            modelBuilder.Entity<UserInsight>()
-                .Property(ui => ui.Category)
-                .HasMaxLength(50);
+                entity.Property(c => c.Color)
+                    .HasMaxLength(50);
 
-            // Users -> UserInsights relationship (1:Many)
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.UserInsights)
-                .WithOne(ui => ui.User)
-                .HasForeignKey(ui => ui.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                // Parent-Child Self-Referencing Relationship
+                entity.HasOne(c => c.ParentCategory)
+                    .WithMany(c => c.ChildCategories)
+                    .HasForeignKey(c => c.father_id)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(c => c.Tasks)
+                    .WithOne(t => t.Category)
+                    .HasForeignKey(t => t.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(c => c.FavoriteUserCategories)
+                    .WithOne(fuc => fuc.Category)
+                    .HasForeignKey(fuc => fuc.category_id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // ====================================================================
-            // Users configuration - עדכון לעמודות החדשות
+            // Tasks Configuration
             // ====================================================================
-            modelBuilder.Entity<Users>()
-                .Property(u => u.FamilyStatus)
-                .HasMaxLength(255);
+            modelBuilder.Entity<tasks>(entity =>
+            {
+                entity.HasKey(t => t.Id);
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.WorkStyle)
-                .HasMaxLength(100);
+                entity.Property(t => t.Title)
+                    .HasMaxLength(200)
+                    .IsRequired();
 
-            modelBuilder.Entity<Users>()
-                .Property(u => u.PreferredWorkHours)
-                .HasMaxLength(50);
+                entity.HasMany(t => t.TaskFiles)
+                    .WithOne(tf => tf.Task)
+                    .HasForeignKey(tf => tf.taskid)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ====================================================================
+            // TaskFile Configuration
+            // ====================================================================
+            modelBuilder.Entity<taskFile>(entity =>
+            {
+                entity.HasKey(tf => tf.fileid);
+
+                entity.Property(tf => tf.filename)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                entity.Property(tf => tf.fileurl)
+                    .HasMaxLength(500)
+                    .IsRequired();
+            });
+
+            // ====================================================================
+            // Favorite Users Categories Configuration
+            // ====================================================================
+            modelBuilder.Entity<favoriet_users_categories>(entity =>
+            {
+                entity.HasKey(fuc => fuc.Id);
+
+                entity.HasIndex(fuc => new { fuc.user_id, fuc.category_id })
+                    .IsUnique();
+            });
+
+            // ====================================================================
+            // ChatSession Configuration
+            // ====================================================================
+            modelBuilder.Entity<ChatSession>(entity =>
+            {
+                entity.HasKey(cs => cs.Id);
+
+                entity.Property(cs => cs.Title)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                entity.HasMany(cs => cs.Messages)
+                    .WithOne(m => m.ChatSession)
+                    .HasForeignKey(m => m.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ====================================================================
+            // Message Configuration
+            // ====================================================================
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.Role)
+                    .HasConversion<string>()
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(m => m.ContentURL)
+                    .IsRequired();
+            });
+
+            // ====================================================================
+            // UserInsight Configuration
+            // ====================================================================
+            modelBuilder.Entity<UserInsight>(entity =>
+            {
+                entity.HasKey(ui => ui.Id);
+
+                entity.Property(ui => ui.InsightText)
+                    .IsRequired();
+
+                entity.Property(ui => ui.Category)
+                    .HasMaxLength(50);
+            });
         }
 
         #endregion

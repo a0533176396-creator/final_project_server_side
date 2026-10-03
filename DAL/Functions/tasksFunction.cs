@@ -34,6 +34,19 @@ namespace DAL.Functions
             }
         }
 
+        //--------------------------שליפת כל המשימות לפי קוד משתמש----------------------------
+        public static List<tasks> GetTasksByUserId(int userId)
+        {
+            using (AppDbContext DB = new AppDbContext())
+            {
+                return DB.Tasks
+                    .Include(t => t.Users)
+                    .Include(t => t.Category)
+                    .Where(t => t.user_id == userId)
+                    .ToList();
+            }
+        }
+
         public static tasks AddNewTask(tasks t)
         {
             using (AppDbContext DB = new AppDbContext())

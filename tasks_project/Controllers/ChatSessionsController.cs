@@ -2,56 +2,39 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Functions;
 using DTO.Models;
+using DAL.Models;
 
 namespace tasks_project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-  public class ChatSessionsController : ControllerBase
+    public class ChatSessionsController : ControllerBase
     {
-//   //-------------
-//        //שליפה
-//        //-------------
-//     [HttpGet("GetAllChatSessions")]
-//        public IActionResult GetAllChatSessions()
-//     {
-//         return Ok(ChatSessionBLL.GetAllChatSessions());
-//        }
+        //-------------
+        // שליפה לפי קוד משתמש
+        //-------------
+        [HttpGet("GetUserSessions/{userId}")]
+        public IActionResult GetUserSessions(int userId)
+        {
+            return Ok(ChatSessionBLL.GetUserSessions(userId));
+        }
 
-//   //-------------------
-//        // שליפה לפי קוד
-//        //-------------------
-//   [HttpGet("GetChatSessionById/{sessionId}")]
-//        public IActionResult GetChatSessionById(short sessionId)
-//     {
-//   return Ok(ChatSessionBLL.GetChatSessionById(sessionId));
-//        }
+        //-------------
+        // הוספת שיחה חדשה
+        //-------------
+        [HttpPost("CreateNewSession")]
+        public IActionResult CreateNewSession(int userId, string title)
+        {
+            return Ok(ChatSessionBLL.CreateNewSession(userId, title));
+        }
 
-// //-------------
-//        //הוספה
-//   //-------------
-// [HttpPut("AddNewChatSession")]
-//        public IActionResult AddNewChatSession([FromBody] ChatSessionDTO sessionDTO)
-//     {
-//  return Ok(ChatSessionBLL.AddNewChatSession(sessionDTO));
-// }
-
-//        //-------------
-//    //עדכון
-// //-------------
-//[HttpPost("UpdateChatSession/{sessionId}")]
-//    public IActionResult UpdateChatSession(short sessionId, [FromBody] ChatSessionDTO sessionDTO)
-//        {
-//       return Ok(ChatSessionBLL.UpdateChatSession(sessionId, sessionDTO));
-//        }
-
-//        //-------------
-//        //מחיקה
-//        //-------------
-//     [HttpDelete("DeleteChatSession/{sessionId}")]
-//      public IActionResult DeleteChatSession(short sessionId)
-//        {
-//            return Ok(ChatSessionBLL.DeleteChatSession(sessionId));
-//    }
+        //-------------
+        // מחיקה
+        //-------------
+        [HttpDelete("DeleteSession/{sessionId}")]
+        public IActionResult DeleteSession(int sessionId)
+        {
+            return Ok(ChatSessionBLL.DeleteSession(sessionId));
+        }
     }
 }

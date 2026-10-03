@@ -27,6 +27,15 @@ namespace tasks_project.Controllers
       return Ok(tasksBLL.GetTaskById(taskId));
         }
 
+        //-------------------
+        // שליפת כל המשימות לפי קוד משתמש
+        //-------------------
+        [HttpGet("GetTasksByUserId/{userId}")]
+        public IActionResult GetTasksByUserId(int userId)
+        {
+            return Ok(tasksBLL.GetTasksByUserId(userId));
+        }
+
         //-------------
         //הוספה
         //-------------

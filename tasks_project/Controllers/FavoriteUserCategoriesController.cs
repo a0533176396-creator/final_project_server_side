@@ -45,6 +45,31 @@ namespace tasks_project.Controllers
        return Ok(favoriet_users_categoriesBLL.AddNewFavoriteUserCategory(favoriteDTO));
         }
 
+        //--------------------------------------------
+        // הוספת קטגוריה חדשה לחלוטין ושיוכה למשתמש
+        //--------------------------------------------
+        [HttpPost("CreateAndLinkNewFavoriteCategory")]
+        public IActionResult CreateAndLinkNewFavoriteCategory([FromBody] CreateAndLinkFavoriteCategoryDTO request)
+        {
+            if (request == null)
+                return BadRequest("Invalid request.");
+
+            try
+            {
+                var result = favoriet_users_categoriesBLL.CreateAndLinkNewFavoriteCategory(request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, errorMessage);
+            }
+        }
+
      //-------------
   //עדכון
         //-------------

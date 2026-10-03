@@ -3,23 +3,17 @@ using DAL.Functions;
 using DAL.Models;
 using DTO.Mapper;
 using DTO.Models;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BLL.Functions
 {
-    /// <summary>
-    /// Business Logic Layer function class for favorite user categories-related operations.
-    /// </summary>
     public static class favoriet_users_categoriesBLL
     {
-        //-----------------------------------GetAllFavoriteUserCategories-----------------------------------
         public static List<favoriet_users_categoriesDTO> GetAllFavoriteUserCategories()
         {
             List<favoriet_users_categories> allData = favoriet_users_categoriesFunction.GetAllFavoriteUserCategories();
             return allData.Select(AppMapper.FavorietUserCategoryToDto).ToList();
         }
 
-        //-----------------------------------GetFavoriteUserCategoryById-----------------------------------
         public static favoriet_users_categoriesDTO? GetFavoriteUserCategoryById(int id)
         {
             favoriet_users_categories? favorite = favoriet_users_categoriesFunction.GetFavoriteUserCategoryById(id);
@@ -28,7 +22,6 @@ namespace BLL.Functions
             return AppMapper.FavorietUserCategoryToDto(favorite);
         }
 
-        //-----------------------------------AddNewFavoriteUserCategory-----------------------------------
         public static List<favoriet_users_categoriesDTO> AddNewFavoriteUserCategory(favoriet_users_categoriesDTO newFavorite)
         {
             favoriet_users_categories newFavoriteTBL = AppMapper.DtoToFavorietUserCategory(newFavorite);
@@ -36,7 +29,6 @@ namespace BLL.Functions
             return allData.Select(AppMapper.FavorietUserCategoryToDto).ToList();
         }
 
-        //-----------------------------------UpdateFavoriteUserCategory-----------------------------------
         public static List<favoriet_users_categoriesDTO> UpdateFavoriteUserCategory(int idFavorite, favoriet_users_categoriesDTO newFavorite)
         {
             favoriet_users_categories newFavoriteTBL = AppMapper.DtoToFavorietUserCategory(newFavorite);
@@ -44,20 +36,56 @@ namespace BLL.Functions
             return allData.Select(AppMapper.FavorietUserCategoryToDto).ToList();
         }
 
-        //-----------------------------------DeleteFavoriteUserCategory-----------------------------------
         public static List<favoriet_users_categoriesDTO> DeleteFavoriteUserCategory(int idFavorite)
         {
             List<favoriet_users_categories> allData = favoriet_users_categoriesFunction.DeleteFavoriteUserCategory(idFavorite);
             return allData.Select(AppMapper.FavorietUserCategoryToDto).ToList();
         }
+
         public static List<categoriesDTO> GetFavoriteCategoriesByUserId(int userId)
         {
-            return favoriet_users_categoriesFunction.GetFavoriteCategoriesQueryByUserId(userId)
-                                        .CategoryToDtoList()
-                                        .ToList();
+            // קבלת הרשימה שכבר עברה Materialize ב-DAL והמרתה ל-DTO
+            List<categories> categoriesList = favoriet_users_categoriesFunction.GetFavoriteCategoriesByUserId(userId);
+
+            return categoriesList?
+                .Select(c => AppMapper.CategoryToDto(c))
+                .ToList() ?? new List<categoriesDTO>();
         }
 
+        //--------------------------------הוספת קטגוריה חדשה ושיוכה למשתמש----------------------------------
+        public static List<categoriesDTO> CreateAndLinkNewFavoriteCategory(CreateAndLinkFavoriteCategoryDTO request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
+            if (string.IsNullOrWhiteSpace(request.CategoryName))
+                throw new ArgumentException("Category name is required.");
 
+            var newCatDto = new categoriesDTO
+            {
+                Name = request.CategoryName.Trim(),
+                father_id = request.FatherId,
+                Color = request.Color ?? string.Empty
+            };
+
+            // יצירת הקטגוריה החדשה במערכת (כולל הגרלת צבע אם צריכה)
+            var allCategories = categoriesBLL.AddNewCategory(newCatDto);
+            var createdCategory = allCategories
+                .Where(c => c.Name == newCatDto.Name && c.father_id == newCatDto.father_id)
+                .OrderByDescending(c => c.Id)
+                .FirstOrDefault();
+
+            if (createdCategory == null)
+                throw new InvalidOperationException("Failed to create new category.");
+
+            // שיוך למשתמש
+            AddNewFavoriteUserCategory(new favoriet_users_categoriesDTO
+            {
+                user_id = request.UserId,
+                category_id = createdCategory.Id
+            });
+
+            return GetFavoriteCategoriesByUserId(request.UserId);
+        }
     }
 }

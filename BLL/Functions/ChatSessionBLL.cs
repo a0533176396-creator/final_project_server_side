@@ -19,7 +19,7 @@ namespace BLL.Functions
         }
 
         // פתיחת שיחה חדשה
-        public static ChatSession CreateNewSession(int userId, string title)
+        public static int CreateNewSession(int userId, string title)
         {
             ChatSession newSession = new ChatSession
             {

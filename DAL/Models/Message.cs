@@ -12,6 +12,7 @@ namespace DAL.Models
         
         public SenderRole Role { get; set; } // "user" או "assistant"
         public string ContentURL { get; set; }
+        public string? Content { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // קשר לטבלת ChatSession

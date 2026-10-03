@@ -94,8 +94,10 @@ namespace BLL.Functions
             promptBuilder.AppendLine("=== הנחיות חשיבה וקבלת החלטות ===");
             promptBuilder.AppendLine("1. **דרישות למעשה (Must-Do)**: אם משתמש מבקש לבצע פעולה רגישה, או שאלה דורשת נתון ספציפי שאינו בהיסטוריה - שאל להבהרה.");
             promptBuilder.AppendLine("2. **הקשר וזיכרון**: אם המשתמש כותב משפט חלקי (למשל: 'תעדכן את זה'), השתמש בהיסטוריית השיחה. אם ברור - אל תשאל שוב.");
-            promptBuilder.AppendLine("3. **שיקול דעת עם גבולות**: סמוך עלKnowledge if it is not contradictory to the personal profile. For example, if it is 20:00 and the children are 4-5 years old, do not send the family to the garden - it's bedtime.");
+            promptBuilder.AppendLine("3. **שיקול דעת עם גבולות**: סמוך על Knowledge if it is not contradictory to the personal profile. For example, if it is 20:00 and the children are 4-5 years old, do not send the family to the garden - it's bedtime.");
             promptBuilder.AppendLine("4. **סגנון תקשורת**: היה תמציתי, חם, ומובן. השתמש בתובנות על אישיות המשתמש כדי להתאים את הטון.");
+
+            promptBuilder.AppendLine("5. **עיצוב פלט**: כתוב תמיד בטקסט רגיל ונקי. חל איסור מוחלט להשתמש בכוכביות (Markdown asterisks) להדגשה. הקפד על מעברי שורה ברורים (ENTER) בין פסקאות וסעיפים לקריאה נוחה.");
 
             return promptBuilder.ToString();
         }
@@ -141,7 +143,9 @@ namespace BLL.Functions
             {
                 SessionId = sessionId,
                 Role = SenderRole.Assistant,
-                ContentURL = aiFileUrl
+                ContentURL = aiFileUrl,
+                CreatedAt = DateTime.UtcNow,
+                Content = aiResponseText
             });
 
             Message aiMessageDal = updatedSession[updatedSession.Count - 1];
@@ -178,28 +182,37 @@ namespace BLL.Functions
                         parts = c.Parts.Select(p => new { text = p.Text }).ToArray()
                     }).ToArray()
                 };
-
                 string jsonPayload = JsonSerializer.Serialize(requestBody);
 
-                // 3. שליחה ב-HTTP/1.1 (תואם נטפרי)
-                string projectId = "project-030df7cb-ddf5-49b9-85d";
-                string url = $"https://us-central1-aiplatform.googleapis.com/v1/projects/{projectId}/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent";
+                // 3. שליחה לנקודת הקצה הציבורית עם מפתח API
+                string apiKey = "AQ.Ab8RN6KTFQuKX12avryhdE7eaCrE5mCwqtcs4q0mKWJ1Td_SlQ";
+                string modelName = "gemini-3.5-flash"; // או gemini-3.5-flash בהתאם למודל שנבחר
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
 
                 using (var httpClient = new HttpClient())
                 {
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    // בנקודת הקצה הציבורית אין צורך בכותרת Authorization עם Bearer Token,
+                    // כיוון שהמפתח מועבר ישירות בפרמטר ?key= בתוך כתובת ה-URL.
 
                     var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
                     var response = await httpClient.PostAsync(url, content);
 
                     string responseJson = await response.Content.ReadAsStringAsync();
 
+                    // --- בדיקה ולוג: הדפסת התשובה הגולמית של השרת לקונסול של Visual Studio ---
+                    System.Diagnostics.Debug.WriteLine("=== AI RAW RESPONSE START ===");
+                    System.Diagnostics.Debug.WriteLine(responseJson);
+                    System.Diagnostics.Debug.WriteLine("=== AI RAW RESPONSE END ===");
+
+                    Console.WriteLine($"AI RAW RESPONSE: {responseJson}");
+                    // ------------------------------------------------------------------------
+
                     if (!response.IsSuccessStatusCode)
                     {
                         return $"שגיאה מהשרת ({response.StatusCode}): {responseJson}";
                     }
 
-                    // 4. חילוץ התשובה מתוך ה-JSON
+                    // 4. חילוץ התשובה מתוך ה-JSON (מבנה התשובה זהה לחלוטין)
                     using (JsonDocument doc = JsonDocument.Parse(responseJson))
                     {
                         var root = doc.RootElement;
@@ -210,14 +223,25 @@ namespace BLL.Functions
                                 contentElem.TryGetProperty("parts", out var parts) &&
                                 parts.GetArrayLength() > 0)
                             {
-                                return parts[0].GetProperty("text").GetString();
+                                // מעבר על החלקים כדי לוודא שאנחנו שולפים את הטקסט ולא שדות אחרים
+                                foreach (var part in parts.EnumerateArray())
+                                {
+                                    if (part.TryGetProperty("text", out var textProp))
+                                    {
+                                        string textResult = textProp.GetString();
+                                        if (!string.IsNullOrEmpty(textResult))
+                                        {
+                                            return textResult;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
 
                     return "לא התקבלה תשובה משרת ה-AI.";
                 }
-            }
+                }
             catch (Exception ex)
             {
                 return $"שגיאה בתקשורת עם סוכן ה-AI: {ex.Message}";

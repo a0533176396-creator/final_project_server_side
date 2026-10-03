@@ -84,7 +84,7 @@ namespace DAL.Functions
         }
 
         //-------------------------------- Validate User Full Name and Password ----------------------------------
-        public static bool ValidateUserFullNameAndPassword(string firstName, string lastName, string password)
+        public static Users ValidateUserFullNameAndPassword(string firstName, string lastName, string password)
         {
             using (AppDbContext DB = new AppDbContext())
             {
@@ -95,9 +95,9 @@ namespace DAL.Functions
 
                 // If user found and password matches, return true
                 if (User != null && User.Password == password)
-                    return true;
+                    return User;
 
-                return false;
+                return null;
             }
         }
     }

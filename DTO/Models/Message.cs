@@ -10,5 +10,6 @@ namespace DTO.Models
         public string Role { get; set; } // "user" ае "assistant"
         public string TextContent { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     }
 }

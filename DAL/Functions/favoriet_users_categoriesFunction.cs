@@ -1,11 +1,9 @@
 using DAL.Data;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Functions
 {
-    /// <summary>
-    /// Function class for favorite user categories-related operations.
-    /// </summary>
     public static class favoriet_users_categoriesFunction
     {
         //--------------------------קבלת כל הקטגוריות המועדפות----------------------------
@@ -22,10 +20,7 @@ namespace DAL.Functions
         {
             using (AppDbContext DB = new AppDbContext())
             {
-                favoriet_users_categories FavoriteUserCategory = DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == id)!;
-                if (FavoriteUserCategory != null)
-                    return FavoriteUserCategory;
-                return null;
+                return DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == id);
             }
         }
 
@@ -45,7 +40,7 @@ namespace DAL.Functions
         {
             using (AppDbContext DB = new AppDbContext())
             {
-                favoriet_users_categories FavoriteToUpdate = DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == idFavorite)!;
+                favoriet_users_categories? FavoriteToUpdate = DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == idFavorite);
                 if (FavoriteToUpdate != null)
                 {
                     FavoriteToUpdate.user_id = newFavorite.user_id;
@@ -61,7 +56,7 @@ namespace DAL.Functions
         {
             using (AppDbContext DB = new AppDbContext())
             {
-                favoriet_users_categories FavoriteToDelete = DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == idFavorite)!;
+                favoriet_users_categories? FavoriteToDelete = DB.FavoriteUserCategories.FirstOrDefault(p => p.Id == idFavorite);
                 if (FavoriteToDelete != null)
                 {
                     DB.FavoriteUserCategories.Remove(FavoriteToDelete);
@@ -71,14 +66,17 @@ namespace DAL.Functions
             }
         }
 
-        // בתוך פרויקט DAL
-        public static IQueryable<categories> GetFavoriteCategoriesQueryByUserId(int userId)
+        //--------------------------------שליפת קטגוריות לפי מזהה משתמש (מתוקן)----------------------------------
+        public static List<categories> GetFavoriteCategoriesByUserId(int userId)
         {
             using (AppDbContext DB = new AppDbContext())
             {
+                // המתריאליזציה (.ToList) מתבצעת כאן בתוך ה-using כדי שה-DbContext יישאר חי בזמן השליפה
                 return DB.FavoriteUserCategories
                     .Where(fuc => fuc.user_id == userId)
-                    .Select(fuc => fuc.Category).AsQueryable();
+                    .Include(fuc => fuc.Category)
+                    .Select(fuc => fuc.Category)
+                    .ToList()!;
             }
         }
     }

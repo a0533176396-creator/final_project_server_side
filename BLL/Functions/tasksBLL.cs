@@ -28,6 +28,13 @@ namespace BLL.Functions
             return AppMapper.TaskToDto(task);
         }
 
+        //-----------------------------------GetTasksByUserId-----------------------------------
+        public static List<tasksDTO> GetTasksByUserId(int userId)
+        {
+            List<tasks> userTasks = tasksFunction.GetTasksByUserId(userId);
+            return userTasks.Select(AppMapper.TaskToDto).ToList();
+        }
+
         //-----------------------------------AddNewTask-----------------------------------
         public static tasksDTO AddNewTask(tasksDTO newTaskDto)
         {

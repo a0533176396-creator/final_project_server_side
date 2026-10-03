@@ -58,9 +58,12 @@ namespace BLL.Functions
 
         }
         //-----------------------------------ValidateUserFullNameAndPassword-----------------------------------
-        public static bool ValidateUserFullNameAndPassword(string firstName, string lastName, string password)
+        public static usersDTO? ValidateUserFullNameAndPassword(string firstName, string lastName, string password)
         {
-            return usersFunction.ValidateUserFullNameAndPassword(firstName, lastName, password);
+            Users user = usersFunction.ValidateUserFullNameAndPassword(firstName, lastName, password);
+            if (user == null)
+                return null;
+            return AppMapper.UserToDto(user);
         }
     }
 }

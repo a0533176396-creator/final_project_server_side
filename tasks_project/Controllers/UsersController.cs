@@ -52,33 +52,35 @@ namespace tasks_project.Controllers
         [HttpDelete("DeleteUser/{userId}")]
         public IActionResult DeleteUser(int userId)
         {
-          return Ok(UsersBLL.DeleteUser(userId));
+            return Ok(UsersBLL.DeleteUser(userId));
         }
 
         //--------------------------------------------
         // Validate User Full Name and Password
         //--------------------------------------------
+        // ...existing code...
         [HttpPost("ValidateUserFullNameAndPassword")]
         public IActionResult ValidateUserFullNameAndPassword([FromBody] ValidateUserRequest request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.FirstName) || 
-       string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.Password))
-         {
-return BadRequest();
+            if (request == null || string.IsNullOrWhiteSpace(request.FirstName) ||
+                string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest();
             }
 
-  bool isValid = UsersBLL.ValidateUserFullNameAndPassword(request.FirstName, request.LastName, request.Password);
-            return Ok(isValid);
+            var userDto = UsersBLL.ValidateUserFullNameAndPassword(request.FirstName, request.LastName, request.Password);
+            if (userDto == null) return Unauthorized();
+            return Ok(userDto);
         }
-    }
-
-    //--------------------------------------------
-    // Request model for validation
-    //--------------------------------------------
-    public class ValidateUserRequest
-    {
-        public string FirstName { get; set; }
-      public string LastName { get; set; }
-        public string Password { get; set; }
+        // ...existing code...
+        //--------------------------------------------
+        // Request model for validation
+        //--------------------------------------------
+        public class ValidateUserRequest
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Password { get; set; }
+        }
     }
 }
