@@ -50,10 +50,25 @@ namespace tasks_project.Controllers
         /// Retrieves all task files associated with a specific task.
     /// </summary>
   /// <param name="taskId">The ID of the task.</param>
+  //      [HttpGet("GetTaskFilesByTaskId/{taskId}")]
+  //public IActionResult GetTaskFilesByTaskId(int taskId)
+  //      {
+  //          return Ok(file_tasksBLL.GetTaskFilesByTaskId(taskId));
+  //      }
         [HttpGet("GetTaskFilesByTaskId/{taskId}")]
-  public IActionResult GetTaskFilesByTaskId(int taskId)
+        public IActionResult GetTaskFilesByTaskId(int taskId)
         {
-            return Ok(file_tasksBLL.GetTaskFilesByTaskId(taskId));
+            var serviceAccountPath = Environment.GetEnvironmentVariable("GCS_SERVICE_ACCOUNT_JSON_PATH");
+            var bucketName = Environment.GetEnvironmentVariable("GCS_BUCKET") ?? "final-tasks-project-files-2026";
+
+            if (!string.IsNullOrEmpty(serviceAccountPath))
+            {
+                var files = file_tasksBLL.GetTaskFilesByTaskIdSigned(taskId, serviceAccountPath, bucketName, TimeSpan.FromMinutes(30));
+                return Ok(files);
+            }
+
+            var fallback = file_tasksBLL.GetTaskFilesByTaskId(taskId);
+            return Ok(fallback);
         }
 
         //--------------------------------------------
@@ -61,9 +76,9 @@ namespace tasks_project.Controllers
         //--------------------------------------------
         /// <summary>
         /// Retrieves all task files for tasks belonging to a specific user.
-   /// </summary>
-      /// <param name="userId">The ID of the user.</param>
-  [HttpGet("GetTaskFilesByUserId/{userId}")]
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        [HttpGet("GetTaskFilesByUserId/{userId}")]
         public IActionResult GetTaskFilesByUserId(int userId)
         {
   return Ok(file_tasksBLL.GetTaskFilesByUserId(userId));

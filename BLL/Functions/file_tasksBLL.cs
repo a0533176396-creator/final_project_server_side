@@ -3,6 +3,7 @@ using DAL.Functions;
 using DAL.Models;
 using DTO.Mapper;
 using DTO.Models;
+using Google.Cloud.Storage.V1;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,12 +55,80 @@ List<taskFile> allData = file_tasks_function.GetAllTaskFiles();
      return allData.Select(AppMapper.TaskFileToDto).ToList();
      }
 
+        // new: return DTOs with signed fileurl when serviceAccountPath provided
+        public static List<taskFileDTO> GetTaskFilesByTaskIdSigned(int taskId, string serviceAccountPath, string bucketName, TimeSpan? ttl = null)
+        {
+            var files = GetTaskFilesByTaskId(taskId); // returns List<taskFileDTO>
+            if (files == null || string.IsNullOrEmpty(serviceAccountPath)) return files;
+
+            try
+            {
+                var signer = UrlSigner.FromServiceAccountPath(serviceAccountPath);
+                var expire = ttl ?? TimeSpan.FromMinutes(30);
+
+                foreach (var f in files)
+                {
+                    try
+                    {
+                        var objectName = ExtractObjectNameFromDto(f, bucketName);
+                        if (string.IsNullOrEmpty(objectName)) continue;
+                        f.fileurl = signer.Sign(bucketName, objectName, expire, HttpMethod.Get);
+                    }
+                    catch
+                    {
+                        // leave original f.fileurl on failure
+                    }
+                }
+            }
+            catch
+            {
+                // signer init failed - return original files
+            }
+
+            return files;
+        }
+
+        private static string ExtractObjectNameFromDto(taskFileDTO f, string bucketName)
+        {
+            if (f == null) return null;
+            var candidate = (f.fileurl ?? f.filename ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(candidate)) return null;
+
+            try
+            {
+                const string gsHost = "https://storage.googleapis.com/";
+                if (candidate.StartsWith(gsHost, StringComparison.OrdinalIgnoreCase))
+                {
+                    var uri = new Uri(candidate);
+                    var segments = uri.AbsolutePath.TrimStart('/').Split('/');
+                    if (segments.Length >= 2) return string.Join("/", segments.Skip(1)); // skip bucket segment
+                }
+
+                if (!string.IsNullOrEmpty(bucketName))
+                {
+                    var idx = candidate.IndexOf(bucketName, StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0)
+                    {
+                        var after = candidate.Substring(idx + bucketName.Length).TrimStart('/', '\\');
+                        if (!string.IsNullOrEmpty(after)) return after;
+                    }
+                }
+
+                return candidate.TrimStart('/', '\\');
+            }
+            catch
+            {
+                return candidate.TrimStart('/', '\\');
+            }
+        }
+
+
         //-----------------------------------GetTaskFilesByUserId-----------------------------------
         /// <summary>
-  /// Retrieves all task files for tasks belonging to a specific user.
+        /// Retrieves all task files for tasks belonging to a specific user.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
-    /// <returns>A list of task file DTOs for all tasks owned by the user.</returns>
+        /// <returns>A list of task file DTOs for all tasks owned by the user.</returns>
         public static List<taskFileDTO> GetTaskFilesByUserId(int userId)
         {
    List<taskFile> allData = file_tasks_function.GetTaskFilesByUserId(userId);
