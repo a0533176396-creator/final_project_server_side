@@ -185,7 +185,7 @@ namespace BLL.Functions
                 string jsonPayload = JsonSerializer.Serialize(requestBody);
 
                 // 3. שליחה לנקודת הקצה הציבורית עם מפתח API
-                string apiKey = "AQ.Ab8RN6KTFQuKX12avryhdE7eaCrE5mCwqtcs4q0mKWJ1Td_SlQ";
+                string apiKey = "DSDSFDF";
                 string modelName = "gemini-3.5-flash"; // או gemini-3.5-flash בהתאם למודל שנבחר
                 string url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
 
